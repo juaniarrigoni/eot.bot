@@ -7,15 +7,24 @@
   "scripts": {
     "start": "node ./dist/app.js",
     "lint": "eslint . --no-ignore",
-    "dev": "npm run lint && nodemon ./src/app.ts",
+    "dev": "npm run lint && nodemon --env-file=.env --watch-path=./src ./src/app.ts",
     "build": "npx rollup -c"
   },
   "keywords": [],
   "dependencies": {
+    "@builderbot-plugins/openai-agents": "^1.0.10",
     "@builderbot-plugins/openai-assistants": "^0.0.2",
+    "@builderbot-plugins/telegram": "^2.0.0",
     "@builderbot/bot": "1.1.6",
-    "@builderbot/provider-twilio": "1.1.6",
-    "dotenv": "^16.4.5"
+    "@builderbot/provider-meta": "1.1.6",
+    "@langchain/community": "^0.2.5",
+    "@langchain/core": "^0.2.5",
+    "@langchain/openai": "^0.1.1",
+    "@supabase/supabase-js": "^2.43.4",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.4.5",
+    "langchain": "^0.2.4",
+    "openai": "^4.47.3"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",

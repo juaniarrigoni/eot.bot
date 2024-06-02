@@ -1,4 +1,5 @@
-import "dotenv/config";
+import { config } from "dotenv";
+config();
 import { join } from "path";
 import {
   createBot,
@@ -10,11 +11,21 @@ import {
 } from "@builderbot/bot";
 import { toAsk, httpInject } from "@builderbot-plugins/openai-assistants";
 import { MemoryDB as Database } from "@builderbot/bot";
+import { MetaProvider as Provider } from "@builderbot/provider-meta";
 
+//env
+//twilio
+const PORT = process.env.PORT ?? 3000;
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const NUMBER = process.env.NUMBER;
+//meta
+const JWT_TOKEN = process.env.JWT_TOKEN;
+const NUMBER_ID = process.env.NUMBER_ID;
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+console.log(JWT_TOKEN, NUMBER_ID, VERIFY_TOKEN);
+// Flows Function
 import { typing } from "./utils/presence";
-import { TwilioProvider as Provider } from "@builderbot/provider-twilio";
-
-const PORT = process.env.PORT ?? 3008;
 
 const discordFlow = addKeyword<Provider, Database>("doc").addAnswer(
   [
@@ -32,32 +43,17 @@ const discordFlow = addKeyword<Provider, Database>("doc").addAnswer(
   }
 );
 
-// const welcomeFlow = addKeyword<Provider, Database>(["hi", "hello", "hola"])
-//   .addAnswer(`🙌 Hello welcome to this *Chatbot*`)
-//   .addAnswer(
-//     [
-//       "I share with you the following links of interest about the project",
-//       "👉 *doc* to view the documentation",
-//     ].join("\n"),
-//     { delay: 800, capture: true },
-//     async (ctx, { fallBack }) => {
-//       if (!ctx.body.toLocaleLowerCase().includes("doc")) {
-//         return fallBack("You should type *doc*");
-//       }
-//       return;
-//     },
-//     [discordFlow]
-//   );
-const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME).addAction(
-  async (ctx, { flowDynamic, state, provider }) => {
+const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
+  .addAnswer("⚡")
+  .addAction(async (ctx, { flowDynamic, state, provider }) => {
+    console.log("entro");
     await typing(ctx, provider);
     const response = await toAsk(process.env.ASSISTANT_ID, ctx.body, state);
     const chunks = response.split(/(?<!\d)\.\s+/g);
     for (const chunk of chunks) {
       await flowDynamic([{ body: chunk.trim() }]);
     }
-  }
-);
+  });
 
 const registerFlow = addKeyword<Provider, Database>(
   utils.setEvent("REGISTER_FLOW")
@@ -103,9 +99,10 @@ const fullSamplesFlow = addKeyword<Provider, Database>([
 const main = async () => {
   const adapterFlow = createFlow([welcomeFlow, registerFlow, fullSamplesFlow]);
   const adapterProvider = createProvider(Provider, {
-    accountSid: process.env.TWILIO_ACCOUNT_SID,
-    authToken: process.env.TWILIO_AUTH_TOKEN,
-    vendorNumber: process.env.NUMBER,
+    jwtToken: JWT_TOKEN,
+    numberId: NUMBER_ID,
+    verifyToken: VERIFY_TOKEN,
+    version: "v19.0",
   });
   const adapterDB = new Database();
 

@@ -97,9 +97,6 @@ const fullSamplesFlow = addKeyword<Provider, Database>([
   });
 
 const main = async () => {
-  if (VERIFY_TOKEN) {
-    return VERIFY_TOKEN;
-  }
   const adapterFlow = createFlow([welcomeFlow, registerFlow, fullSamplesFlow]);
   const adapterProvider = createProvider(Provider, {
     jwtToken: JWT_TOKEN,
